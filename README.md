@@ -7,7 +7,7 @@ This repository contains a collection of AI Agent samples demonstrating how to i
 This sample showcases a notebook-based walkthrough of how to integrate **Databricks Genie** with **Azure AI Foundry Agent**, and how to enhance the agent's functionality by adding external tools such as Logic Apps.
 
 It includes:
-- A notebook to demonstrate the integration logic and tool extension.
+- A notebook to demonstrate the integration logicapps and Genie agent as tool extension.
 - A **Streamlit** web app for a simple, interactive chat interface with the agent—ideal for demo scenarios.
 
 ### Features
