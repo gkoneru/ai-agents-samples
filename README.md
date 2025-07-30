@@ -46,7 +46,6 @@ pip install -r requirements.txt
 streamlit run app.py
 
 ```
-## Coming soon: Evaluation framework to benchmark tool effectiveness and agent responses.
 
 ## Select Genie as connection type in AI Foundry
 
