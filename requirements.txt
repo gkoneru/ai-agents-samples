@@ -1,0 +1,13 @@
+databricks-sdk
+azure-identity
+azure-ai-agents
+azure-ai-projects
+azure.storage.blob
+azure-mgmt-logic
+openai
+aiohttp
+ipykernel
+dotenv
+requests
+pandas
+streamlit
