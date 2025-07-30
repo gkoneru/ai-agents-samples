@@ -43,4 +43,6 @@ streamlit run app.py
 ```
 ## Coming soon: Evaluation framework to benchmark tool effectiveness and agent responses.
 
+## Select Genie as connection type in AI Foundry
+
 <img width="1999" height="1148" alt="image" src="https://github.com/user-attachments/assets/e19a83f1-db05-43c7-b805-925727ce462e" />
