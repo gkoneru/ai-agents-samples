@@ -2,7 +2,7 @@
 
 This repository contains a collection of AI Agent samples demonstrating how to integrate and extend Azure AI Foundry Agent capabilities with various tools and services.
 
-## 📘 Sample: Databricks Genie Chat Assistant
+## Sample: Databricks Genie Chat Assistant
 
 This sample showcases a notebook-based walkthrough of how to integrate **Databricks Genie** with **Azure AI Foundry Agent**, and how to enhance the agent's functionality by adding external tools such as Logic Apps.
 
@@ -10,7 +10,7 @@ It includes:
 - A notebook to demonstrate the integration logic and tool extension.
 - A **Streamlit** web app for a simple, interactive chat interface with the agent—ideal for demo scenarios.
 
-### 🔧 Features
+### Features
 
 - Integration between Azure AI Foundry and Databricks Genie
 - Extendable agent with tools like `send_email` and `get_weather` (powered by Logic Apps)
@@ -41,6 +41,6 @@ pip install -r requirements.txt
 streamlit run app.py
 
 ```
-#Coming soon: Evaluation framework to benchmark tool effectiveness and agent responses.
+## Coming soon: Evaluation framework to benchmark tool effectiveness and agent responses.
 
 <img width="1999" height="1148" alt="image" src="https://github.com/user-attachments/assets/e19a83f1-db05-43c7-b805-925727ce462e" />
