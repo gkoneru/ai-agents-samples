@@ -43,7 +43,7 @@ Install the required Python dependencies:
 ```bash
 pip install -r requirements.txt
 
-streamlit run app.py
+streamlit run streamlit_chat_app.py
 
 ```
 
