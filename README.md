@@ -8,13 +8,18 @@ This sample showcases a notebook-based walkthrough of how to integrate **Databri
 
 It includes:
 - A notebook to demonstrate the integration logic and tool extension.
-- A **Streamlit** web app for a simple, interactive chat interface with the agent ideal for demo scenarios.
+- A **Streamlit** web app for a simple, interactive chat interface with the agent—ideal for demo scenarios.
 
 ### Features
 
 - Integration between Azure AI Foundry and Databricks Genie
 - Extendable agent with tools like `send_email` and `get_weather` (powered by Logic Apps)
 - Easy-to-use Streamlit frontend
+
+### Based On
+
+This example is extended from the official Azure sample:  
+👉 [sample_agent_adb_genie_conversation.py](https://github.com/Azure-Samples/AI-Foundry-Connections/blob/main/src/samples/python/sample_agent_adb_genie_conversation.py)
 
 ---
 
