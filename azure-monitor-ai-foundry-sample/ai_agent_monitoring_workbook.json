@@ -1,0 +1,1552 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Azure AI Agent Service Insights\n\nUse this workbook to analyze and monitor all your Azure AI Agent Service resources, including agent operations, thread activities, tool calls, and performance metrics."
+      },
+      "name": "text - Title"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "subscription-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "label": "Subscriptions",
+            "type": 6,
+            "description": "All subscriptions with Azure AI Services",
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "Resources\n| where type =~ \"microsoft.cognitiveservices/accounts\"\n| summarize Count = count() by subscriptionId\n| order by Count desc\n| extend Rank = row_number()\n| project value = subscriptionId, label = subscriptionId, selected = false",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "resources-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "Resources",
+            "label": "AI Agent Service",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "Resources\n| where type =~ \"microsoft.cognitiveservices/accounts\"\n| order by name asc\n| extend Rank = row_number()\n| project value = id, label = id, selected = Rank <= 5",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "time-range-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time Range",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 86400000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": true
+            }
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 1",
+      "styleSettings": {
+        "margin": "15px 0 0 0"
+      }
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "overview-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "id": "monitor-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Monitor",
+            "subTarget": "Monitor",
+            "style": "link"
+          },
+          {
+            "id": "insights-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Insights",
+            "subTarget": "Insights",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - Navigation links",
+      "styleSettings": {
+        "margin": "10px 0 0 0"
+      }
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### Azure AI Agent Service Overview\n\nGet comprehensive insights into your AI Agent Service deployment, including resource distribution, agent operations, and performance metrics."
+            },
+            "name": "text - Overview Title"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type =~ \"microsoft.cognitiveservices/accounts\"\n| where name in~ (split(\"{Resources:label}\", \", \"))\n| summarize count(type) by subscriptionId",
+              "size": 3,
+              "title": "Count by Subscription Id",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "query - Count by Subscription Id"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type =~ \"microsoft.cognitiveservices/accounts\"\n| where name in~ (split(\"{Resources:label}\", \", \"))\n| summarize count(type) by resourceGroup",
+              "size": 3,
+              "title": "Count by Resource Group",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "query - Count by Resource Group"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type =~ \"microsoft.cognitiveservices/accounts\"\n| where name in~ (split(\"{Resources:label}\", \", \"))\n| summarize count(type) by location",
+              "size": 3,
+              "title": "Count by Location",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "query - Count by Location"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\n| where type == \"microsoft.cognitiveservices/accounts\"\n| where name in~ (split(\"{Resources:label}\", \", \"))\n| extend Details = pack_all()\n| project Resource=id, resourceGroup, location, subscriptionId, kind, SKU=sku.name, publicNetworkAccess=properties.publicNetworkAccess, dateCreated=properties.dateCreated, tags, Details",
+              "size": 3,
+              "title": "Azure AI Agent Service Resources",
+              "noDataMessage": "No AI Agent Service resources found.",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Resource",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "resourceGroup",
+                    "formatter": 14
+                  },
+                  {
+                    "columnMatch": "location",
+                    "formatter": 17
+                  },
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "dateCreated",
+                    "formatter": 6
+                  },
+                  {
+                    "columnMatch": "Details",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "CellDetails",
+                      "linkLabel": "\ud83d\udd0d View Details"
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "name": "query - All AI Agent Service Resources"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "name": "group - Overview"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "parameters": [
+                {
+                  "id": "workspace-param-monitor",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Workspace",
+                  "label": "Log Analytics Workspace",
+                  "type": 5,
+                  "isRequired": true,
+                  "query": "where type =~ \"microsoft.operationalinsights/workspaces\"\n| project id",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "resourceTypeFilter": {
+                      "microsoft.operationalinsights/workspaces": true
+                    },
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.OperationalInsights/workspaces/{workspace-name}"
+                }
+              ],
+              "style": "pills",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "name": "parameters - Workspace Selector"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Azure AI Agent Service Monitoring\n\nMonitor your agent operations, performance, and tool usage in real-time."
+            },
+            "name": "text - Monitor Title"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## 📊 Service Health Overview"
+            },
+            "name": "text - Health Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize TotalRequests=count()",
+              "size": 3,
+              "title": "Total Requests",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "card",
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "query - Total Requests"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize SuccessRate = round(todouble(countif(ResultType == \"Success\")) / count() * 100, 2)",
+              "size": 3,
+              "title": "Success Rate %",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "card",
+              "textSettings": {
+                "style": "bignumber"
+              },
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "SuccessRate",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "greenRed"
+                  }
+                }
+              }
+            },
+            "customWidth": "20",
+            "name": "query - Success Rate"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize AvgLatency = round(avg(DurationMs), 2)",
+              "size": 3,
+              "title": "Avg Latency (ms)",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "card",
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "query - Avg Latency"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize P95Latency = round(percentile(DurationMs, 95), 2)",
+              "size": 3,
+              "title": "P95 Latency (ms)",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "card",
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "query - P95 Latency"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where ResultType == \"Failed\" or httpStatusCode_d >= 400\n| summarize ErrorCount = count()",
+              "size": 3,
+              "title": "Total Errors",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "card",
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "query - Error Count"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## 📈 Performance Trends"
+            },
+            "name": "text - Performance Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize SuccessRate = round(todouble(countif(ResultType == \"Success\")) / count() * 100, 2) by bin(TimeGenerated, 1h)\n| order by TimeGenerated asc",
+              "size": 0,
+              "title": "Success Rate Trend (%)",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "linechart"
+            },
+            "customWidth": "50",
+            "name": "query - Success Rate Trend"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize AvgLatency=avg(DurationMs), P50=percentile(DurationMs, 50), P95=percentile(DurationMs, 95), P99=percentile(DurationMs, 99) by bin(TimeGenerated, 1h)\n| order by TimeGenerated asc",
+              "size": 0,
+              "title": "Latency Percentiles Over Time (ms)",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "linechart"
+            },
+            "customWidth": "50",
+            "name": "query - Latency Percentiles"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## 🔍 Operation Analysis"
+            },
+            "name": "text - Operations Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName has_any (\"Create_Assistant\", \"Create_Thread\", \"Create_Run\", \"Submit_Tool_Outputs\")\n| summarize Count=count() by OperationName\n| order by Count desc",
+              "size": 3,
+              "title": "Operations by Type",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "query - Operations by Type"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| extend StatusCode = tostring(ResultType)\n| summarize Count=count() by StatusCode\n| order by Count desc",
+              "size": 3,
+              "title": "Requests by Status",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "query - Requests by Status"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize TotalCalls=count(), SuccessCount=countif(ResultType == \"Success\"), FailureCount=countif(ResultType == \"Failed\"), AvgDuration=avg(DurationMs), P95Duration=percentile(DurationMs, 95) by OperationName\n| extend SuccessRate = round(todouble(SuccessCount) / TotalCalls * 100, 2)\n| project OperationName, TotalCalls, SuccessCount, FailureCount, SuccessRate, AvgDuration, P95Duration\n| order by TotalCalls desc",
+              "size": 0,
+              "title": "Operations Summary with Success Rates",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TotalCalls",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "SuccessCount",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "green"
+                    }
+                  },
+                  {
+                    "columnMatch": "FailureCount",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  },
+                  {
+                    "columnMatch": "SuccessRate",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 100,
+                      "palette": "greenRed"
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgDuration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "P95Duration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "filter": true,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "OperationName"
+                  ],
+                  "expandTopLevel": true
+                }
+              }
+            },
+            "name": "query - Operations Summary"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## 💰 Cost & Usage Insights"
+            },
+            "name": "text - Cost Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize RequestCount=count() by bin(TimeGenerated, 1d), Resource\n| order by TimeGenerated asc",
+              "size": 0,
+              "title": "Daily Request Volume by Resource (for Cost Estimation)",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "barchart"
+            },
+            "customWidth": "50",
+            "name": "query - Daily Volume"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize TotalRequests=count() by Resource\n| extend Percentage = round(todouble(TotalRequests) / toscalar(AzureDiagnostics | where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\" | where TimeGenerated {TimeRange:query} | where Resource in~ (split(\"{Resources:label}\", \", \")) | count) * 100, 2)\n| order by TotalRequests desc",
+              "size": 0,
+              "title": "Request Distribution by Resource",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TotalRequests",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "Percentage",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 100,
+                      "palette": "blue"
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "customWidth": "50",
+            "name": "query - Resource Distribution"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## ⚡ Resource Performance Comparison"
+            },
+            "name": "text - Comparison Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize TotalRequests=count(), AvgLatency=round(avg(DurationMs), 2), P95Latency=round(percentile(DurationMs, 95), 2), SuccessRate=round(todouble(countif(ResultType == \"Success\")) / count() * 100, 2), ErrorCount=countif(ResultType == \"Failed\" or httpStatusCode_d >= 400) by Resource\n| order by TotalRequests desc",
+              "size": 0,
+              "title": "Performance Comparison Across Resources",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TotalRequests",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgLatency",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "orange"
+                    },
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "P95Latency",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    },
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "SuccessRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": ">=", "value": "99", "representation": "success"},
+                        {"operator": ">=", "value": "95", "representation": "2"},
+                        {"operator": ">=", "value": "90", "representation": "warning"},
+                        {"operator": "Default", "representation": "critical"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "ErrorCount",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "TotalRequests",
+                    "sortOrder": 2
+                  }
+                ]
+              }
+            },
+            "name": "query - Performance Comparison"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## Agent-Specific Metrics\nDetailed breakdown by Agent, Thread, and Tool usage"
+            },
+            "name": "text - Agent Metrics Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName contains \"agent\" or OperationName contains \"Assistant\"\n| summarize Runs=count(), SuccessfulRuns=countif(ResultType == \"Success\"), FailedRuns=countif(ResultType == \"Failed\"), AvgDuration=avg(DurationMs) by OperationName\n| extend SuccessRate = round(todouble(SuccessfulRuns) / Runs * 100, 2)\n| order by Runs desc",
+              "size": 0,
+              "title": "Agent Performance Metrics",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Runs",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "SuccessfulRuns",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "green"
+                    }
+                  },
+                  {
+                    "columnMatch": "FailedRuns",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  },
+                  {
+                    "columnMatch": "SuccessRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": ">=", "value": "95", "representation": "success"},
+                        {"operator": ">=", "value": "80", "representation": "2"},
+                        {"operator": "Default", "representation": "critical"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgDuration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "customWidth": "50",
+            "name": "query - Agent Metrics"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName contains \"Tool\" or OperationName contains \"Function\"\n| summarize ToolCalls=count() by OperationName\n| order by ToolCalls desc\n| take 10",
+              "size": 3,
+              "title": "Top 10 Tools Used",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "query - Tool Usage"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize TotalRequests=count() by bin(TimeGenerated, 1h)\n| order by TimeGenerated asc",
+              "size": 0,
+              "title": "Request Volume Over Time",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "areachart"
+            },
+            "name": "query - Request Volume"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## Detailed Activity Logs\nClick on any row to see full details"
+            },
+            "name": "text - Logs Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| extend StatusCode = tostring(httpStatusCode_d)\n| project TimeGenerated, OperationName, ResultType, StatusCode, DurationMs, CallerIPAddress, Resource, requestUri_s, properties_s\n| order by TimeGenerated desc\n| take 500",
+              "size": 0,
+              "title": "Activity Logs (Latest 500)",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 6
+                  },
+                  {
+                    "columnMatch": "ResultType",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": "==", "value": "Success", "representation": "success"},
+                        {"operator": "==", "value": "Failed", "representation": "failed"},
+                        {"operator": "Default", "representation": "unknown"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "StatusCode",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": "==", "value": "200", "representation": "success"},
+                        {"operator": ">=", "value": "400", "representation": "failed"},
+                        {"operator": "Default", "representation": "info"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "DurationMs",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "requestUri_s",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "properties_s",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "GenericDetails",
+                      "linkLabel": "📋 View Details"
+                    }
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "TimeGenerated",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "properties_s",
+                    "label": "Full Details"
+                  }
+                ]
+              }
+            },
+            "name": "query - Activity Logs"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Monitor"
+      },
+      "name": "group - Monitor"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "parameters": [
+                {
+                  "id": "workspace-param-insights",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "WorkspaceInsights",
+                  "label": "Log Analytics Workspace",
+                  "type": 5,
+                  "isRequired": true,
+                  "query": "where type =~ \"microsoft.operationalinsights/workspaces\"\n| project id",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "resourceTypeFilter": {
+                      "microsoft.operationalinsights/workspaces": true
+                    },
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.OperationalInsights/workspaces/{workspace-name}"
+                }
+              ],
+              "style": "pills",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "name": "parameters - Workspace Selector Insights"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Azure AI Agent Service Insights\n\nDetailed logs and insights into your agent activities, tool calls, and failures."
+            },
+            "name": "text - Insights Title"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## 🎯 Key Insights & Recommendations"
+            },
+            "name": "text - Key Insights Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize TotalRequests=count(), \n            SlowRequests=countif(DurationMs > 5000),\n            VerySlowRequests=countif(DurationMs > 10000),\n            FailedRequests=countif(ResultType == \"Failed\"),\n            AvgDuration=round(avg(DurationMs), 2)\n| extend SlowRequestPercentage = round(todouble(SlowRequests) / TotalRequests * 100, 2)\n| extend FailureRate = round(todouble(FailedRequests) / TotalRequests * 100, 2)\n| project Metric = \"Summary\", TotalRequests, SlowRequests, SlowRequestPercentage, FailedRequests, FailureRate, AvgDuration",
+              "size": 3,
+              "title": "⚠️ Performance & Reliability Summary",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TotalRequests",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "SlowRequests",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "orange"
+                    }
+                  },
+                  {
+                    "columnMatch": "SlowRequestPercentage",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": "<", "value": "5", "representation": "success"},
+                        {"operator": "<", "value": "10", "representation": "warning"},
+                        {"operator": "Default", "representation": "critical"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "FailedRequests",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  },
+                  {
+                    "columnMatch": "FailureRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": "<", "value": "1", "representation": "success"},
+                        {"operator": "<", "value": "5", "representation": "warning"},
+                        {"operator": "Default", "representation": "critical"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgDuration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "query - Key Insights"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## 🔥 Top Issues & Hotspots"
+            },
+            "name": "text - Issues Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where DurationMs > 5000\n| summarize SlowRequestCount=count(), AvgDuration=round(avg(DurationMs), 2), MaxDuration=round(max(DurationMs), 2) by OperationName\n| order by SlowRequestCount desc\n| take 10",
+              "size": 0,
+              "title": "Top 10 Slowest Operations (>5s)",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "SlowRequestCount",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgDuration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "MaxDuration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "customWidth": "50",
+            "name": "query - Slow Operations"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| summarize RequestsPerHour=count() by bin(TimeGenerated, 1h), CallerIPAddress\n| where RequestsPerHour > 100\n| order by RequestsPerHour desc\n| take 10",
+              "size": 0,
+              "title": "Top 10 High-Volume Callers (>100 req/hr)",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 6
+                  },
+                  {
+                    "columnMatch": "RequestsPerHour",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "yellow"
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "customWidth": "50",
+            "name": "query - High Volume Callers"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---"
+            },
+            "name": "text - Divider"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Thread & Run Analysis\nTrack conversation threads and agent runs"
+            },
+            "name": "text - Thread Analysis Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName contains \"Thread\" or OperationName contains \"Message\"\n| summarize Operations=count(), Duration=sum(DurationMs), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated) by OperationName, Resource\n| extend ThreadLifetime = LastSeen - FirstSeen\n| order by Operations desc\n| take 20",
+              "size": 0,
+              "title": "Top 20 Active Thread Operations",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Operations",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "Duration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "FirstSeen",
+                    "formatter": 6
+                  },
+                  {
+                    "columnMatch": "LastSeen",
+                    "formatter": 6
+                  },
+                  {
+                    "columnMatch": "ThreadLifetime",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "purple"
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "customWidth": "50",
+            "name": "query - Thread Analysis"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName contains \"Run\"\n| summarize Count=count() by ResultType\n| order by Count desc",
+              "size": 3,
+              "title": "Run Status Distribution",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "query - Run Status"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n### Tool Call Analysis\nDetailed tool usage and performance"
+            },
+            "name": "text - Tool Analysis Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName contains \"Tool\" or OperationName contains \"Function\"\n| summarize ToolCalls=count(), AvgDuration=avg(DurationMs), SuccessRate=round(todouble(countif(ResultType == \"Success\")) / count() * 100, 2) by OperationName, Resource\n| order by ToolCalls desc",
+              "size": 0,
+              "title": "Tool Performance by Service",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "ToolCalls",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgDuration",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "SuccessRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": ">=", "value": "95", "representation": "success"},
+                        {"operator": ">=", "value": "80", "representation": "2"},
+                        {"operator": "Default", "representation": "critical"}
+                      ]
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "name": "query - Tool Performance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where OperationName contains \"Tool\" or OperationName contains \"Function\"\n| summarize ToolCalls=count() by bin(TimeGenerated, 1h), OperationName\n| order by TimeGenerated asc",
+              "size": 0,
+              "title": "Tool Usage Timeline",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "areachart"
+            },
+            "name": "query - Tool Calls Timeline"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n### Error & Failure Analysis\nDiagnostic information for troubleshooting"
+            },
+            "name": "text - Error Analysis Header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| where ResultType == \"Failed\" or httpStatusCode_d >= 400\n| summarize Failures=count(), LastOccurrence=max(TimeGenerated) by Resource, OperationName, tostring(httpStatusCode_d), ResultType\n| order by Failures desc",
+              "size": 0,
+              "title": "Failures by Error Type",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failures",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  },
+                  {
+                    "columnMatch": "LastOccurrence",
+                    "formatter": 6
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "Failures",
+                    "sortOrder": 2
+                  }
+                ]
+              }
+            },
+            "name": "query - Failures Table"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.COGNITIVESERVICES\"\n| where TimeGenerated {TimeRange:query}\n| where Resource in~ (split(\"{Resources:label}\", \", \"))\n| extend StatusCode = tostring(httpStatusCode_d)\n| project TimeGenerated, OperationName, ResultType, StatusCode, DurationMs, CallerIPAddress, Resource, requestUri_s, properties_s\n| order by TimeGenerated desc\n| take 100",
+              "size": 0,
+              "title": "Detailed Log Entries (Click to View Full Details)",
+              "timeContextFromParameter": "TimeRange",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{WorkspaceInsights}"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 6
+                  },
+                  {
+                    "columnMatch": "ResultType",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": "==", "value": "Success", "representation": "success"},
+                        {"operator": "==", "value": "Failed", "representation": "failed"},
+                        {"operator": "Default", "representation": "unknown"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "StatusCode",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {"operator": "==", "value": "200", "representation": "success"},
+                        {"operator": ">=", "value": "400", "representation": "failed"},
+                        {"operator": "Default", "representation": "info"}
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "DurationMs",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "requestUri_s",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "properties_s",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "GenericDetails",
+                      "linkLabel": "📋 All Details"
+                    }
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "TimeGenerated",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "properties_s",
+                    "label": "Full Log Data"
+                  },
+                  {
+                    "columnId": "requestUri_s",
+                    "label": "Request URI"
+                  }
+                ]
+              }
+            },
+            "name": "query - Detailed Logs"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---\n## 📚 Monitoring Guide & Alert Recommendations\n\n### 🎯 Recommended SLA Targets:\n- **Success Rate**: ≥ 99.5%\n- **P95 Latency**: < 3 seconds\n- **P99 Latency**: < 5 seconds\n- **Error Rate**: < 0.5%\n\n### ⚠️ Alert Thresholds:\n\n**Critical Alerts:**\n- Success rate drops below 95%\n- Error rate exceeds 5%\n- P95 latency exceeds 10 seconds\n\n**Warning Alerts:**\n- Success rate between 95-99%\n- Error rate between 1-5%\n- P95 latency between 5-10 seconds\n- Slow requests (>5s) exceed 10%\n\n### 🔍 Troubleshooting Tips:\n\n**High Latency:**\n1. Check the \"Top 10 Slowest Operations\" for patterns\n2. Review tool call performance - some tools may be slow\n3. Examine thread complexity - long conversations may increase latency\n4. Consider scaling up your AI service tier\n\n**High Error Rate:**\n1. Review \"Failures by Error Type\" table\n2. Check HTTP status codes (429 = throttling, 500 = service error)\n3. Verify resource quotas and limits\n4. Check caller IP patterns for potential abuse\n\n**Cost Optimization:**\n1. Review \"Daily Request Volume\" for usage patterns\n2. Identify peak usage times for capacity planning\n3. Check \"Request Distribution by Resource\" to balance load\n4. Consider caching for frequently repeated requests\n\n### 📊 How to Use This Workbook:\n\n1. **Overview Tab**: Get resource inventory and distribution\n2. **Monitor Tab**: Track real-time health, performance, and trends\n3. **Insights Tab**: Deep-dive into issues, patterns, and optimization opportunities\n\n### 🔗 Useful Links:\n- [Azure AI Agent Service Documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/)\n- [Monitoring Reference](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/reference/monitor-service)\n- [Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/)\n- [Azure Monitor Alerts](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview)"
+            },
+            "name": "text - Documentation"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Insights"
+      },
+      "name": "group - Insights"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.OperationalInsights/workspaces/{workspace-name}"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

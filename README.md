@@ -2,13 +2,24 @@
 
 This repository contains a collection of AI Agent samples demonstrating how to integrate and extend Azure AI Foundry Agent capabilities with various tools and services.
 
-## Sample: AI Foundry Databricks Genie Chat Assistant
+## Samples
 
-This sample showcases a notebook-based walkthrough of how to integrate **Databricks Genie** with **Azure AI Foundry Agent**, and how to enhance the agent's functionality by adding external tools such as Logic Apps.
+### AI Foundry Databricks Sample
+
+Located in the `ai-foundry-databricks-sample/` folder, this sample showcases a notebook-based walkthrough of how to integrate **Databricks Genie** with **Azure AI Foundry Agent**, and how to enhance the agent's functionality by adding external tools such as Logic Apps.
 
 It includes:
 - A notebook to demonstrate the integration logicapps and Genie agent as tool extension.
 - A **Streamlit** web app for a simple, interactive chat interface with the agent—ideal for demo scenarios.
+
+### Azure Monitor AI Foundry Sample
+
+Located in the `azure-monitor-ai-foundry-sample/` folder, this sample demonstrates comprehensive monitoring and alerting for **Azure AI Foundry Agent Service** using **Azure Monitor** and **Log Analytics**.
+
+It includes:
+- A **Jupyter notebook** with KQL queries for monitoring failures, performance, and usage patterns
+- An **Azure Workbook template** for comprehensive operational insights and dashboards
+- Sample queries for analyzing agent operations, thread activities, and tool calls
 
 ### Features
 
@@ -36,15 +47,16 @@ Before running the samples, ensure the following are set up:
 
 ---
 
-## Installation
+## Getting Started
 
-Install the required Python dependencies:
+Navigate to the sample folder and install the required Python dependencies:
 
 ```bash
+cd ai-foundry-databricks-sample/
 pip install -r requirements.txt
 
+# Run the Streamlit app
 streamlit run streamlit_chat_app.py
-
 ```
 
 ## Select Genie as connection type in AI Foundry
