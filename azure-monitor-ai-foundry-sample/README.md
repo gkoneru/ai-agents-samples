@@ -4,7 +4,7 @@ This sample demonstrates how to monitor, analyze, and create alerts for Azure AI
 
 ## Files
 
-- `12_azure_monitor_alerts.ipynb` - Jupyter notebook demonstrating how to query diagnostic logs, monitor failures, and create alerts
+- `azure_monitor_alerts.ipynb` - Jupyter notebook demonstrating how to query diagnostic logs, monitor failures, and create alerts
 - `ai_agent_monitoring_workbook.json` - Azure Workbook template for comprehensive AI Agent Service insights and monitoring
 - `requirements.txt` - Python dependencies
 
