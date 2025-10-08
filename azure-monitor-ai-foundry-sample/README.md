@@ -74,7 +74,7 @@ pip install -r requirements.txt
    jupyter notebook
    ```
 
-2. Open `12_azure_monitor_alerts.ipynb`
+2. Open `azure_monitor_alerts.ipynb`
 
 3. Update the configuration variables with your actual values
 
